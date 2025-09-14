@@ -53,23 +53,33 @@ def install_tools(tools):
     print(f"\n📦 Installing {total} tools...\n")
 
     for idx, tool in enumerate(tools, 1):
-        status = install_tool(tool)
+        try:
+            status = install_tool(tool)
 
-        # Display clean progress
-        progress_percent = int((idx / total) * 100)
-        status_display = {
-            "installed": "✅",
-            "installed_snap": "✅ (snap)",
-            "skipped": "✔ already installed",
-            "failed": "❌ failed"
-        }
-        print(f"[{progress_percent:3}%] ({idx}/{total}) {tool} {status_display[status]}")
+            # Display clean progress
+            progress_percent = int((idx / total) * 100)
+            status_display = {
+                "installed": "✅",
+                "installed_snap": "✅ (snap)",
+                "skipped": "✔ already installed",
+                "failed": "❌ failed"
+            }
+            print(f"[{progress_percent:3}%] ({idx}/{total}) {tool} {status_display[status]}")
 
-        # Count successes/failures
-        if status in ["installed", "installed_snap"]:
-            success_count += 1
-        elif status == "failed":
-            failed_tools.append(tool)
+            # Count successes/failures
+            if status in ["installed", "installed_snap"]:
+                success_count += 1
+            elif status == "failed":
+                failed_tools.append(tool)
+
+        except KeyboardInterrupt:
+            # Handle Ctrl+C to stop installation
+            print("\n\nOperation interrupted by user. Exiting gracefully...")
+            break
+        except EOFError:
+            # Handle Ctrl+D to stop installation
+            print("\n\nOperation stopped by user (Ctrl+D). Exiting gracefully...")
+            break
 
     # Summary
     print("\n" + "="*40)

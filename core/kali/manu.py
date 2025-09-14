@@ -32,30 +32,16 @@ def run_script(path):
     else:
         print(f"{RED}⚠ Unsupported script type: {path}{RESET}")
 
-def run_chmod():
-    """Run chmod +x on all files in the current directory."""
-    print(f"{YELLOW}⚙ Running sudo chmod +x * on all files in the directory...{RESET}")
-    try:
-        subprocess.check_call(["sudo", "chmod", "+x", "*"])
-        print(f"{GREEN}✅ Successfully set execute permissions on all files.{RESET}")
-    except subprocess.CalledProcessError:
-        print(f"{RED}❌ Failed to set execute permissions on the files.{RESET}")
-
 def main_menu():
     while True:
         os.system("clear")  # Clear terminal before showing menu
 
         print(CYAN + "="*50 + RESET)
-        print(f"{BOLD}{GREEN}Neo-Katoolin - Kali Linux Tools Installer{RESET}")
+        print(f"{BOLD}{GREEN}Kali Linux Apps & custome themes{RESET}")
         print(CYAN + "="*50 + RESET)
-        print(f"{YELLOW}1){RESET} Add Kali repos & update")
-        print(f"{YELLOW}2){RESET} Install Kali default tools")
-        print(f"{YELLOW}3){RESET} Custom Installation")
-        print(f"{YELLOW}4){RESET} Custom Themes")
-        print(f"{YELLOW}5){RESET} Install common apps")
-        print(f"{YELLOW}6){RESET} Uninstall tools")
-        print(f"{YELLOW}7){RESET} Kali Linux Apps & custom themes")
-        print(f"{YELLOW}8){RESET} Help & diagnostics")
+        print(f"{YELLOW}1){RESET} Full setup (all apps, themes, grub)")
+        print(f"{YELLOW}2){RESET} Install app only")
+        print(f"{YELLOW}3){RESET} Setup themes only")
         print(f"{YELLOW}0){RESET} Exit\n")
 
         try:
@@ -65,30 +51,11 @@ def main_menu():
             sys.exit(0)  # Clean exit on Ctrl+C
 
         if choice == '1':
-            run_script("core/repo.py")
-            run_chmod()  # Run chmod after repo.py
+            run_script("core/kali/kali_install.sh")
         elif choice == '2':
-            run_script("core/default.py")
-            run_chmod()  # Run chmod after default.py
+            run_script("core/kali/app.sh")
         elif choice == '3':
-            run_script("core/Selective.py")
-            run_chmod()  # Run chmod after Selective.py
-        elif choice == '4':
-            run_script("core/theme.sh")
-            run_chmod()  # Run chmod after theme.sh
-        elif choice == '5':
-            run_script("core/apps.py")
-            run_chmod()  # Run chmod after apps.py
-        elif choice == '6':
-            run_script("core/uninstaller.py")
-            run_chmod()  # Run chmod after uninstaller.py
-        elif choice == '7':
-            run_script("core/kali/manu.py")  # Example Bash script
-            run_chmod()  # Run chmod after manu.py
-        elif choice == '8':
-            run_script("core/help.py")
-            run_chmod()  # Run chmod after help.py
-
+            run_script("core/kali/theme.sh")
         elif choice == '0':
             print(f"{GREEN}Exiting Neo-Katoolin. Goodbye! 👋{RESET}")
             sys.exit(0)
