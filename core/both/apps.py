@@ -33,6 +33,7 @@ def display_menu():
     print("2) Install Telegram Desktop")
     print("3) Install Visual Studio Code")
     print("4) Install ProtonVPN")
+    print("5) Install virtualbox")
     print("00) Install All Applications")
     print("0) Exit")
 
@@ -56,6 +57,8 @@ def main():
             execute_bash("install_vscode.sh")
         elif choice == '4':
             execute_bash("install_protonvpn.sh")
+        elif choice == '5':
+            execute_bash("install_virtualbox.sh")
         elif choice == '00':
             for script in [
                 "install_brave.sh",

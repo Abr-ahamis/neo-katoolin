@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+import shutil
 import subprocess
 
 # ===== Color Codes =====
@@ -12,8 +13,8 @@ CYAN = "\033[96m"
 RESET = "\033[0m"
 BOLD = "\033[1m"
 
+# ===== Root Checker =====
 def ensure_root():
-    """Re-run the script with sudo if not root."""
     if os.geteuid() != 0:
         print(f"{YELLOW}⚠ This script requires root privileges. Prompting for sudo...{RESET}")
         try:
@@ -23,8 +24,8 @@ def ensure_root():
             print(f"{RED}❌ Failed to gain root privileges. Exiting.{RESET}")
             sys.exit(1)
 
+# ===== Script Runner =====
 def run_script(path):
-    """Run a script (.py with Python, .sh with Bash)."""
     if path.endswith(".py"):
         subprocess.run([sys.executable, path])
     elif path.endswith(".sh"):
@@ -32,74 +33,123 @@ def run_script(path):
     else:
         print(f"{RED}⚠ Unsupported script type: {path}{RESET}")
 
+# ===== chmod +x (recursive) =====
 def run_chmod():
-    """Run chmod +x on all files in the current directory."""
-    print(f"{YELLOW}⚙ Running sudo chmod +x * on all files in the directory...{RESET}")
+    print(f"{YELLOW}⚙ Setting execute permission recursively...{RESET}")
     try:
-        subprocess.check_call(["sudo", "chmod", "+x", "*"])
-        print(f"{GREEN}✅ Successfully set execute permissions on all files.{RESET}")
-    except subprocess.CalledProcessError:
-        print(f"{RED}❌ Failed to set execute permissions on the files.{RESET}")
+        for root, dirs, files in os.walk("."):
+            for filename in files:
+                # Check if file is a script type or no extension (likely executable)
+                if filename.endswith((".py", ".sh")) or "." not in filename:
+                    filepath = os.path.join(root, filename)
+                    subprocess.call(["chmod", "+x", filepath])
+        print(f"{GREEN}✅ Executable permissions applied to scripts.{RESET}")
+    except Exception as e:
+        print(f"{RED}❌ chmod failed: {e}{RESET}")
 
-def main_menu():
+# ===== Get Terminal Width =====
+def get_terminal_width():
+    try:
+        width = shutil.get_terminal_size().columns
+        return min(width, 100)
+    except Exception:
+        return 64  # fallback
+
+# ===== Menu Data =====
+ubuntu_options = [
+    ("1", "Add Kali repos & update", "core/ubuntu/repo.py"),
+    ("2", "Install Kali default tools", "core/both/default.py"),
+    ("3", "Custom Installation", "core/both/Selective.py"),
+    ("4", "Custom Themes", "core/ubuntu/theme.sh"),
+    ("5", "Install common apps", "core/both/apps.py"),
+    ("6", "Uninstall tools", "core/both/uninstaller.py"),
+    ("7", "Help & diagnostics", "core/ubuntu/help.py"),
+    ("0", "Exit", None)
+]
+
+kali_options = [
+    ("1", "Kali Linux Apps & custom themes", "core/kali/manu.py"),
+    ("2", "Add Kali repos & update", "core/kali/repo.py"),
+    ("3", "Install Top 10 tools", "core/kali/tools.py"),
+    ("4", "Selective install", "core/both/Selective.py"),
+    ("5", "Kali custom themes", "core/kali/theme.sh"),
+    ("6", "Kali common apps", "core/both/apps.py"),
+    ("7", "Uninstall Kali tools", "core/both/uninstaller.py"),
+    ("8", "Help & diagnostics", "core/kali/help.py"),
+    ("0", "Exit", None)
+]
+
+# ===== Draw Menus =====
+def draw_header(title):
+    width = get_terminal_width()
+    print(CYAN + "=" * width + RESET)
+    print(f"{BOLD}{GREEN}{title:^{width}}{RESET}")
+    print(CYAN + "=" * width + RESET)
+
+def show_menu(options, title="Neo-Katoolin"):
     while True:
-        os.system("clear")  # Clear terminal before showing menu
+        os.system("clear")
+        draw_header(title)
 
-        print(CYAN + "="*50 + RESET)
-        print(f"{BOLD}{GREEN}Neo-Katoolin - Kali Linux Tools Installer{RESET}")
-        print(CYAN + "="*50 + RESET)
-        print(f"{YELLOW}1){RESET} Add Kali repos & update")
-        print(f"{YELLOW}2){RESET} Install Kali default tools")
-        print(f"{YELLOW}3){RESET} Custom Installation")
-        print(f"{YELLOW}4){RESET} Custom Themes")
-        print(f"{YELLOW}5){RESET} Install common apps")
-        print(f"{YELLOW}6){RESET} Uninstall tools")
-        print(f"{YELLOW}7){RESET} Kali Linux Apps & custom themes")
-        print(f"{YELLOW}8){RESET} Help & diagnostics")
-        print(f"{YELLOW}0){RESET} Exit\n")
+        for code, desc, _ in options:
+            print(f"{YELLOW}{code}){RESET} {desc}")
+        print(CYAN + "=" * get_terminal_width() + RESET)
 
         try:
-            choice = input(f"{MAGENTA}Enter your choice [0-8]: {RESET}")
+            choice = input(f"{MAGENTA}Enter your choice: {RESET}").strip()
         except KeyboardInterrupt:
-            print(f"\n{GREEN}Exiting Neo-Katoolin. Goodbye! 👋{RESET}")
-            sys.exit(0)  # Clean exit on Ctrl+C
+            print(f"\n{GREEN}Exiting... 👋{RESET}")
+            sys.exit(0)
 
-        if choice == '1':
-            run_script("core/repo.py")
-            run_chmod()  # Run chmod after repo.py
-        elif choice == '2':
-            run_script("core/default.py")
-            run_chmod()  # Run chmod after default.py
-        elif choice == '3':
-            run_script("core/Selective.py")
-            run_chmod()  # Run chmod after Selective.py
-        elif choice == '4':
-            run_script("core/theme.sh")
-            run_chmod()  # Run chmod after theme.sh
-        elif choice == '5':
-            run_script("core/apps.py")
-            run_chmod()  # Run chmod after apps.py
-        elif choice == '6':
-            run_script("core/uninstaller.py")
-            run_chmod()  # Run chmod after uninstaller.py
-        elif choice == '7':
-            run_script("core/kali/manu.py")  # Example Bash script
-            run_chmod()  # Run chmod after manu.py
-        elif choice == '8':
-            run_script("core/help.py")
-            run_chmod()  # Run chmod after help.py
+        matched = False
+        for code, _, path in options:
+            if choice == code:
+                matched = True
+                if path is None:
+                    print(f"{GREEN}Exiting Neo-Katoolin. Goodbye! 👋{RESET}")
+                    sys.exit(0)
+                run_script(path)
+                run_chmod()
+                break
 
-        elif choice == '0':
-            print(f"{GREEN}Exiting Neo-Katoolin. Goodbye! 👋{RESET}")
+        if not matched:
+            print(f"{RED}❌ Invalid choice. Try again.{RESET}")
+            input(f"{YELLOW}Press Enter to continue...{RESET}")
+
+# ===== Entry Point Menu =====
+def main_menu():
+    while True:
+        os.system("clear")
+        draw_header("Neo-Katoolin - Mode Selection")
+
+        print(f"{YELLOW}1){RESET} Ubuntu Mode")
+        print(f"{YELLOW}2){RESET} Kali Mode")
+        print(f"{YELLOW}0){RESET} Exit")
+        print(CYAN + "=" * get_terminal_width() + RESET)
+
+        try:
+            mode = input(f"{MAGENTA}Choose a mode: {RESET}").strip()
+        except KeyboardInterrupt:
+            print(f"\n{GREEN}Exiting... 👋{RESET}")
+            sys.exit(0)
+
+        if mode == "1":
+            show_menu(ubuntu_options, "Neo-Katoolin - Ubuntu Mode")
+        elif mode == "2":
+            show_menu(kali_options, "Neo-Katoolin - Kali Mode")
+        elif mode == "0":
+            print(f"{GREEN}Goodbye! 👋{RESET}")
             sys.exit(0)
         else:
-            print(f"{RED}Invalid choice. Please try again.{RESET}")
-            input(f"{YELLOW}Press Enter to continue...{RESET}")  # Pause so error is visible
+            print(f"{RED}Invalid input. Try again.{RESET}")
+            input(f"{YELLOW}Press Enter to continue...{RESET}")
 
+# ===== Launch =====
 if __name__ == "__main__":
     ensure_root()
+    run_chmod()  # Run chmod once at startup
     try:
         main_menu()
     except KeyboardInterrupt:
-        print(f"\n{GREEN}Exiting Neo-Katoolin. Goodbye! 👋{RESET}")
+        print(f"\n{GREEN}Exiting... 👋{RESET}")
         sys.exit(0)

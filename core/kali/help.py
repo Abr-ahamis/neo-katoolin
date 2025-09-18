@@ -37,7 +37,7 @@ FILE STRUCTURE:
 │   ├── Selective.py - Handles category-based installation
 │   └── uninstaller.py - Manages uninstallation of tools
 ├── main.py - Entry point for the application
-└── tools/
+└── core/tools/
     └── list-tools.txt - Contains list of all Kali Linux tools
 
 MODULAR DESIGN:
@@ -79,7 +79,7 @@ def run_diagnostics():
         print(f"✗ Error checking repository: {e}")
     
     # Check if tools list exists
-    if os.path.exists('tools/list-tools.txt'):
+    if os.path.exists('core/tools/list-tools.txt'):
         print("✓ Tools list file found")
     else:
         print("✗ Tools list file not found")

@@ -7,11 +7,11 @@ import shutil
 def get_tools_list():
     """Read tools from the list-tools.txt file"""
     try:
-        with open('tools/list-tools.txt', 'r') as f:
+        with open('core/tools/list-tools.txt', 'r') as f:
             tools = [line.strip() for line in f if line.strip() and not line.startswith('#')]
         return tools
     except FileNotFoundError:
-        print("Error: tools/list-tools.txt not found.")
+        print("Error: core/tools/list-tools.txt not found.")
         return []
     except Exception as e:
         print(f"Error reading tools list: {e}")

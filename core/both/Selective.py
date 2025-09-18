@@ -8,7 +8,7 @@ def get_tools_by_category():
     current_category = None
     
     try:
-        with open('tools/list-tools.txt', 'r') as f:
+        with open('core/tools/list-tools.txt', 'r') as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -21,7 +21,7 @@ def get_tools_by_category():
                 elif current_category and not line.startswith('#'):
                     categories[current_category].append(line)
     except FileNotFoundError:
-        print("Error: tools/list-tools.txt not found.")
+        print("Error: core/tools/list-tools.txt not found.")
         return {}
     except Exception as e:
         print(f"Error reading tools list: {e}")
